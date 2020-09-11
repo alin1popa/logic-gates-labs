@@ -91,8 +91,10 @@ class Gate extends Drawable {
 }
 
 class NotGate extends Gate {
-    constructor(context) {
+    constructor(context, x, y) {
         super(context);
+        this.x = x;
+        this.y = y;
         
         var t_in_1 = new Terminal(context);
         var t_out_1 = new Terminal(context);
@@ -134,16 +136,55 @@ class NotGate extends Gate {
     }
 }
 
+class Wire extends Drawable {
+    constructor(context, t1, t2) {
+        super(context);
+        this.t1 = t1;
+        this.t2 = t2;
+        
+        var r = Math.floor(Math.random()*10);
+        var colors = [
+            "blue", "red", "green", "purple", "cyan",
+            "darkred", "lightgreen", "lightblue", "darkgreen", "gray"
+        ];
+        
+        this.color = colors[r];
+    }
+    
+    draw() {
+        var ctx = this.context;
+        
+        ctx.beginPath();
+        ctx.moveTo(this.t1.x, this.t1.y);
+        ctx.lineTo(this.t2.x, this.t2.y);
+        ctx.strokeStyle = this.color;
+        ctx.stroke();
+        ctx.closePath();
+        
+        ctx.strokeStyle = "black";
+    }
+}
+
 class Game {
     constructor() {
         this.canvas = document.getElementById("canvas");
         this.context = this.canvas.getContext("2d");
+        this.selectedTerminal = null;
         
-        this.gates = [];
-        var t = new NotGate(this.context);
-        t.x = 100
-        t.y = 50;
-        this.gates.push(t);
+        this.gates = [
+            new NotGate(this.context, 100, 50),
+            new NotGate(this.context, 100, 100),
+            new NotGate(this.context, 100, 150),
+            new NotGate(this.context, 100, 200),
+            new NotGate(this.context, 100, 250),
+            
+            new NotGate(this.context, 300, 50),
+            new NotGate(this.context, 300, 100),
+            new NotGate(this.context, 300, 150),
+            new NotGate(this.context, 300, 200),
+            new NotGate(this.context, 300, 250),
+        ];
+        this.wires = [];
         
         this.canvas.addEventListener('mousedown', this.click.bind(this));
     }
@@ -156,6 +197,19 @@ class Game {
         var t = this.checkCollision(x, y);
         if (t) {
             t.selected = !t.selected;
+            
+            if (t.selected && !this.selectedTerminal) {
+                this.selectedTerminal = t;
+            } else if (!t.selected) {
+                this.selectedTerminal = null;
+            } else {
+                var w = new Wire(this.context, t, this.selectedTerminal);
+                this.wires.push(w);
+                
+                this.selectedTerminal.selected = false;
+                this.selectedTerminal = null;
+                t.selected = false;
+            }
         }
         
         this.update();
@@ -175,6 +229,10 @@ class Game {
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
         this.gates.forEach(t => {
+            t.draw();
+        });
+        
+        this.wires.forEach(t => {
             t.draw();
         });
         
