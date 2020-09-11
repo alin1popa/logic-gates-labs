@@ -12,20 +12,172 @@ canvas {
 <body onload="startGame()">
 <script>
 
-class Game {
-    constructor() {
-        this.canvas = document.getElementById("canvas");
-        this.context = this.canvas.getContext("2d");
+TERMINAL_OUTER_RADIUS = 8;
+TERMINAL_INNER_RADIUS = 4;
+
+
+class Drawable {
+    constructor(context) {
+        this.x = 0
+        this.y = 0
+        this.context = context;
+    }
+    
+    draw() {
+        // abstract
+        console.log("Not implemented");
+    }
+}
+
+class Terminal extends Drawable {
+    constructor(context) {
+        super(context);
+        this.selected = false;
     }
     
     draw() {
         var ctx = this.context;
+        var x = this.x;
+        var y = this.y;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, TERMINAL_OUTER_RADIUS, 0, Math.PI*2, false);
+        ctx.fillStyle = "lightgray";
+        ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = this.selected ? "red" : "black";
+        ctx.stroke();
+        ctx.closePath();
+        
+        ctx.beginPath();
+        ctx.arc(x, y, TERMINAL_INNER_RADIUS, 0, Math.PI*2, false);
+        ctx.fillStyle = "white";
+        ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = this.selected ? "red" : "black";
+        ctx.stroke();
+        ctx.closePath();
+        
+        ctx.strokeStyle = "black";
+    }
+    
+    checkCollision(x, y) {
+        return ((Math.abs(x-this.x) <= TERMINAL_OUTER_RADIUS) && (Math.abs(y-this.y) <= TERMINAL_OUTER_RADIUS));
+    }
+}
+
+class Gate extends Drawable {
+    constructor(context) {
+        super(context);
+        this.terminals = [];
+        this.inputs = [];
+        this.output = false;
+    }
+    
+    apply() {
+        console.log("Not implemented");
+        // abstract
+    }
+    
+    checkCollision(x, y) {
+        for (var index = 0; index < this.terminals.length; index++) {
+            var t = this.terminals[index];
+            if (t.checkCollision(x, y)) {
+                return t;
+            }
+        }
+        return false;
+    }
+}
+
+class NotGate extends Gate {
+    constructor(context) {
+        super(context);
+        
+        var t_in_1 = new Terminal(context);
+        var t_out_1 = new Terminal(context);
+        
+        this.terminals = [t_in_1, t_out_1];
+    }
+
+    draw() {
+        var x = this.x;
+        var y = this.y;
+        var ctx = this.context;
     
         ctx.beginPath();
-        ctx.rect(20, 40, 50, 50);
-        ctx.fillStyle = "#FF0000";
-        ctx.fill();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x+20, y);
+        ctx.lineTo(x+20, y+20);
+        ctx.lineTo(x+40, y);
+        ctx.lineTo(x+20, y-20);
+        ctx.lineTo(x+20, y);
+        ctx.moveTo(x+50, y);
+        ctx.lineTo(x+70, y);
+        ctx.stroke();
         ctx.closePath();
+        
+        ctx.beginPath();
+        ctx.arc(x+45, y, 5, 0, Math.PI*2, false);
+        ctx.strokeStyle = "black";
+        ctx.stroke();
+        ctx.closePath();
+    
+        this.terminals[0].x = x;
+        this.terminals[0].y = y;
+        this.terminals[1].x = x + 70;
+        this.terminals[1].y = y;
+        
+        this.terminals.forEach(t => {
+            t.draw();
+        });
+    }
+}
+
+class Game {
+    constructor() {
+        this.canvas = document.getElementById("canvas");
+        this.context = this.canvas.getContext("2d");
+        
+        this.gates = [];
+        var t = new NotGate(this.context);
+        t.x = 100
+        t.y = 50;
+        this.gates.push(t);
+        
+        this.canvas.addEventListener('mousedown', this.click.bind(this));
+    }
+    
+    click(event) {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        
+        var t = this.checkCollision(x, y);
+        if (t) {
+            t.selected = !t.selected;
+        }
+        
+        this.update();
+    }
+    
+    checkCollision(x, y) {
+        for (var index = 0; index < this.gates.length; index++) {
+            var g = this.gates[index];
+            var t = g.checkCollision(x, y);
+            if (t) return t;
+        }
+        return false;
+    }
+    
+    update() {
+        var ctx = this.context;
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.gates.forEach(t => {
+            t.draw();
+        });
+        
     }
 }
 
@@ -33,7 +185,7 @@ var game;
 
 function startGame() {
     game = new Game();
-    game.draw();
+    game.update();
 }
 
 </script>
