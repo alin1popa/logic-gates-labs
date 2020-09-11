@@ -15,6 +15,8 @@ canvas {
 TERMINAL_OUTER_RADIUS = 8;
 TERMINAL_INNER_RADIUS = 4;
 
+INPUT = 1;
+OUTPUT = 2;
 
 class Drawable {
     constructor(context) {
@@ -30,10 +32,11 @@ class Drawable {
 }
 
 class Terminal extends Drawable {
-    constructor(context) {
+    constructor(context, type) {
         super(context);
         this.selected = false;
-        this.wires = [];
+        this.type = type;
+        this.value = false;
     }
     
     draw() {
@@ -67,20 +70,30 @@ class Terminal extends Drawable {
     }
 }
 
-class Gate extends Drawable {
+class Applicable extends Drawable {
     constructor(context) {
         super(context);
-        this.terminals = [];
-        this.inputs = [];
-        this.output = false;
     }
     
     apply() {
         console.log("Not implemented");
         // abstract
     }
+} 
+
+class Gate extends Applicable {
+    constructor(context) {
+        super(context);
+        this.terminals = [];
+        this.output = false;
+    }
+    
+    extraCollisionCallback(x, y) {
+        // not implemented
+    }
     
     checkCollision(x, y) {
+        this.extraCollisionCallback(x, y);
         for (var index = 0; index < this.terminals.length; index++) {
             var t = this.terminals[index];
             if (t.checkCollision(x, y)) {
@@ -91,16 +104,101 @@ class Gate extends Drawable {
     }
 }
 
+class Led extends Gate {
+    constructor(context, x, y) {
+        super(context);
+        this.x = x;
+        this.y = y;
+        
+        this.value = false;
+        this.terminals = [new Terminal(context, INPUT)];
+    }
+    
+    apply() {
+        this.value = this.terminals[0].value;
+    }
+    
+    draw() {
+        var x = this.x;
+        var y = this.y;
+        var ctx = this.context;
+        
+        ctx.beginPath();
+        ctx.arc(x+20, y, TERMINAL_OUTER_RADIUS, 0, Math.PI*2, false);
+        ctx.fillStyle = this.value ? "red" : "lightgray";
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+        
+        this.terminals[0].x = x;
+        this.terminals[0].y = y;
+        this.terminals.forEach(t => {
+            t.draw();
+        });
+    }
+}
+
+class Switch extends Gate {
+    constructor(context, x, y) {
+        super(context);
+        this.x = x;
+        this.y = y;
+        
+        this.value = false;
+        this.terminals = [new Terminal(context, OUTPUT)];
+    }
+    
+    apply() {
+        this.terminals[0].value = this.value;
+    }
+    
+    extraCollisionCallback(x, y) {
+        if (x >= this.x && x <= this.x+30 && y >= this.y && y <= this.y+20) {
+            this.value = !this.value;
+        }
+    }
+    
+    draw() {
+        var x = this.x;
+        var y = this.y;
+        var ctx = this.context;
+    
+        ctx.beginPath();
+        ctx.rect(x, y, 30, 20);
+        ctx.stroke();
+        ctx.closePath();
+        
+        ctx.beginPath();
+        ctx.rect(x+(this.value ? 15 : 5), y+5, 10, 10);
+        ctx.fillStyle = this.value ? "red" : "white";
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+        
+        ctx.fillStyle = "black";
+        
+        this.terminals[0].x = x+43;
+        this.terminals[0].y = y+10;
+        this.terminals.forEach(t => {
+            t.draw();
+        });
+    }
+}
+
 class NotGate extends Gate {
     constructor(context, x, y) {
         super(context);
         this.x = x;
         this.y = y;
         
-        var t_in_1 = new Terminal(context);
-        var t_out_1 = new Terminal(context);
+        var t_in_1 = new Terminal(context, INPUT);
+        var t_out_1 = new Terminal(context, OUTPUT);
         
         this.terminals = [t_in_1, t_out_1];
+    }
+    
+    apply() {
+        this.terminals[1].value = !this.terminals[0].value;
     }
 
     draw() {
@@ -137,7 +235,7 @@ class NotGate extends Gate {
     }
 }
 
-class Wire extends Drawable {
+class Wire extends Applicable {
     constructor(context, t1, t2) {
         super(context);
         this.t1 = t1;
@@ -150,6 +248,19 @@ class Wire extends Drawable {
         ];
         
         this.color = colors[r];
+    }
+    
+    apply() {
+        if (this.t1.type == OUTPUT && this.t2.type == OUTPUT) {
+            // TODO: error
+        } else if (this.t1.type == OUTPUT) {
+            this.t2.value = this.t1.value;
+        } else if (this.t2.type == OUTPUT) {
+            this.t1.value = this.t2.value;
+        } else if (this.t1.value || this.t2.value) {
+            this.t1.value = true;
+            this.t2.value = true;
+        }
     }
     
     draw() {
@@ -173,6 +284,11 @@ class Game {
         this.selectedTerminal = null;
         
         this.gates = [
+            new Switch(this.context, 10, 50),
+            new Switch(this.context, 10, 100),
+            new Switch(this.context, 10, 150),
+            new Switch(this.context, 10, 200),
+        
             new NotGate(this.context, 100, 50),
             new NotGate(this.context, 100, 100),
             new NotGate(this.context, 100, 150),
@@ -184,6 +300,12 @@ class Game {
             new NotGate(this.context, 300, 150),
             new NotGate(this.context, 300, 200),
             new NotGate(this.context, 300, 250),
+            
+            new Led(this.context, 500, 50),
+            new Led(this.context, 500, 100),
+            new Led(this.context, 500, 150),
+            new Led(this.context, 500, 200),
+            new Led(this.context, 500, 250),
         ];
         this.wires = [];
         
@@ -242,10 +364,12 @@ class Game {
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
         this.gates.forEach(t => {
+            t.apply();
             t.draw();
         });
         
         this.wires.forEach(t => {
+            t.apply();
             t.draw();
         });
         
@@ -256,7 +380,9 @@ var game;
 
 function startGame() {
     game = new Game();
-    game.update();
+    window.setInterval(function(){
+        game.update();
+    }, 50);
 }
 
 </script>
