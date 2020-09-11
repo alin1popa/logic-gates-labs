@@ -33,6 +33,7 @@ class Terminal extends Drawable {
     constructor(context) {
         super(context);
         this.selected = false;
+        this.wires = [];
     }
     
     draw() {
@@ -144,8 +145,8 @@ class Wire extends Drawable {
         
         var r = Math.floor(Math.random()*10);
         var colors = [
-            "blue", "red", "green", "purple", "cyan",
-            "darkred", "lightgreen", "lightblue", "darkgreen", "gray"
+            "blue", "red", "green", "purple", "olive",
+            "darkred", "navy", "teal", "fuchsia", "gray"
         ];
         
         this.color = colors[r];
@@ -203,12 +204,24 @@ class Game {
             } else if (!t.selected) {
                 this.selectedTerminal = null;
             } else {
-                var w = new Wire(this.context, t, this.selectedTerminal);
-                this.wires.push(w);
+                var deleted = false;
+                for (var index = 0; index < this.wires.length; index++) {
+                    var we = this.wires[index];
+                    if ((we.t1 == t && we.t2 == this.selectedTerminal) || 
+                        (we.t1 == this.selectedTerminal && we.t2 == t)) {
+                        this.wires.splice(index, 1);
+                        deleted = true;
+                        break;
+                    }
+                }
                 
+                if (!deleted) {
+                    var w = new Wire(this.context, t, this.selectedTerminal);
+                    this.wires.push(w);
+                }
                 this.selectedTerminal.selected = false;
                 this.selectedTerminal = null;
-                t.selected = false;
+                t.selected = false;                
             }
         }
         
