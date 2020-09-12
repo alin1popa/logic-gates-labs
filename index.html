@@ -46,7 +46,7 @@ class Terminal extends Drawable {
         
         ctx.beginPath();
         ctx.arc(x, y, TERMINAL_OUTER_RADIUS, 0, Math.PI*2, false);
-        ctx.fillStyle = "lightgray";
+        ctx.fillStyle = this.value ? "red" : "lightgray";
         ctx.fill();
         ctx.lineWidth = 1;
         ctx.strokeStyle = this.selected ? "red" : "black";
