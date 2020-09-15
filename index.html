@@ -37,6 +37,20 @@ class Terminal extends Drawable {
         this.selected = false;
         this.type = type;
         this.value = false;
+        this.connectedWires = [];
+    }
+    
+    propagate(wire) {
+        for (var i=0; i<this.connectedWires.length; i++) {
+            var w = this.connectedWires[i];
+            if (w === wire)
+                continue;
+            
+            if (w.t1 === this)
+                w.apply(OUTPUT, undefined);
+            else
+                w.apply(undefined, OUTPUT);
+        }
     }
     
     draw() {
@@ -367,6 +381,8 @@ class Wire extends Applicable {
         super(context);
         this.t1 = t1;
         this.t2 = t2;
+        this.t1.connectedWires.push(this);
+        this.t2.connectedWires.push(this);
         
         var r = Math.floor(Math.random()*10);
         var colors = [
@@ -377,16 +393,26 @@ class Wire extends Applicable {
         this.color = colors[r];
     }
     
-    apply() {
-        if (this.t1.type == OUTPUT && this.t2.type == OUTPUT) {
+    removeSelf() {
+        this.t1.connectedWires = this.t1.connectedWires.filter(w => w !== this);
+        this.t2.connectedWires = this.t2.connectedWires.filter(w => w !== this);
+    }
+    
+    apply(propagate_type1, propagate_type2) {
+        var type1 = propagate_type1 || this.t1.type;
+        var type2 = propagate_type2 || this.t2.type;
+    
+        if (type1 == OUTPUT && type2 == OUTPUT) {
             // TODO: error
-        } else if (this.t1.type == OUTPUT) {
+        } else if (type1 == OUTPUT && type2 == INPUT) {
             this.t2.value = this.t1.value;
-        } else if (this.t2.type == OUTPUT) {
+            this.t2.propagate(this);
+        } else if (type1 == INPUT && type2 == OUTPUT) {
             this.t1.value = this.t2.value;
+            this.t1.propagate(this);
         } else if (this.t1.value || this.t2.value) {
-            this.t1.value = true;
-            this.t2.value = true;
+            //this.t1.value = true;
+            //this.t2.value = true;
         }
     }
     
@@ -468,6 +494,7 @@ class Game {
                     var we = this.wires[index];
                     if ((we.t1 == t && we.t2 == this.selectedTerminal) || 
                         (we.t1 == this.selectedTerminal && we.t2 == t)) {
+                        we.removeSelf();
                         this.wires.splice(index, 1);
                         deleted = true;
                         break;
