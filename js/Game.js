@@ -7,7 +7,7 @@ class Game {
         this.boards = [
             new BoardInput(this.context, 20, 20),
             new BoardGates(this.context, 200, 20),
-            new BoardLeds(this.context, 480, 20),
+            new BoardLeds(this.context, 700, 20),
             
         ];
         this.gates = [
