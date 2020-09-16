@@ -223,9 +223,9 @@ class NotGate extends Gate {
         ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(x+20, y);
-        ctx.lineTo(x+20, y+20);
+        ctx.lineTo(x+20, y+12);
         ctx.lineTo(x+40, y);
-        ctx.lineTo(x+20, y-20);
+        ctx.lineTo(x+20, y-12);
         ctx.lineTo(x+20, y);
         ctx.moveTo(x+50, y);
         ctx.lineTo(x+70, y);
@@ -433,42 +433,161 @@ class Wire extends Applicable {
     }
 }
 
+class Board extends Applicable {
+    constructor(context, gates, x, y, w, h) {
+        super(context);
+        this.gates = gates;
+        
+        this.x = x
+        this.y = y
+        this.w = w
+        this.h = h
+    }
+    
+    apply() {
+        this.gates.forEach(t => {
+            t.apply();
+        });
+    }
+    
+    checkCollision(x, y) {
+        for (var index = 0; index < this.gates.length; index++) {
+            var g = this.gates[index];
+            var t = g.checkCollision(x, y);
+            if (t) return t;
+        }
+        return false;
+    }
+    
+    draw() {
+        var ctx = this.context;
+        
+        ctx.fillStyle = "#FFFF33";
+        //ctx.rect(this.x, this.y, this.w, this.h);
+        var B = 5;
+        ctx.rect(this.x+B, this.y+B, this.w-2*B, this.h-2*B);
+        ctx.fillRect(this.x, this.y, this.w, this.h);
+        //ctx.rect(85, 20, 310, 410);
+        //ctx.rect(485, 30, 55, 240);
+        //ctx.fillRect(5, 30, 60, 200);
+        //ctx.fillRect(85, 20, 310, 410);
+        //ctx.fillRect(485, 30, 55, 240);
+        ctx.stroke();
+        
+        this.gates.forEach(t => {
+            t.draw();
+        });
+    }
+}
+
+class BoardInput extends Board {
+    constructor(context, x, y) {
+        var gates = [];
+        
+        for (var i=0; i<2; i++) {
+            for (var j=0; j<10; j++) {
+                gates.push(new Switch(context, x+15+i*70, y+50+j*30));
+            }
+        }
+            
+        
+        /*
+            new NotGate(context, 100, 50),
+            new NotGate(context, 100, 100),
+            new NotGate(context, 100, 150),
+            new NotGate(context, 100, 200),
+            new NotGate(context, 100, 250),
+            new NotGate(context, 100, 300),
+            new NotGate(context, 100, 350),
+            new NotGate(context, 100, 400),
+            
+            new NandGate2(context, 300, 50),
+            new NandGate2(context, 300, 100),
+            new NandGate2(context, 300, 150),
+            new NorGate2(context, 300, 200),
+            new NorGate2(context, 300, 250),
+            new NorGate2(context, 300, 300),
+            new NotGate(context, 300, 350),
+            new NotGate(context, 300, 400),
+            
+            
+            new Led(context, 500, 50),
+            new Led(context, 500, 100),
+            new Led(context, 500, 150),
+            new Led(context, 500, 200),
+            new Led(context, 500, 250)
+            */
+            
+        var width = 150;
+        var height = 350;
+            
+        super(context, gates, x, y, width, height);
+    }
+}
+
+class BoardGates extends Board {
+    constructor(context, x, y) {
+        var gates = [];
+        
+        for (var j=0; j<6; j++) {
+            gates.push(new NotGate(context, x+20, y+70+j*30));
+            gates.push(new NotGate(context, x+20, y+270+j*30));
+            gates.push(new NotGate(context, x+20, y+470+j*30));
+        }
+        
+        for (var j=0; j<4; j++) {
+            gates.push(new NandGate2(context, x+125, y+74+j*47));
+            gates.push(new NandGate2(context, x+125, y+274+j*47));
+            gates.push(new NorGate2(context, x+125, y+474+j*47));
+        }
+            
+        
+        /*
+            new NotGate(context, 100, 50),
+            new NotGate(context, 100, 100),
+            new NotGate(context, 100, 150),
+            new NotGate(context, 100, 200),
+            new NotGate(context, 100, 250),
+            new NotGate(context, 100, 300),
+            new NotGate(context, 100, 350),
+            new NotGate(context, 100, 400),
+            
+            new NandGate2(context, 300, 50),
+            new NandGate2(context, 300, 100),
+            new NandGate2(context, 300, 150),
+            new NorGate2(context, 300, 200),
+            new NorGate2(context, 300, 250),
+            new NorGate2(context, 300, 300),
+            new NotGate(context, 300, 350),
+            new NotGate(context, 300, 400),
+            
+            
+            new Led(context, 500, 50),
+            new Led(context, 500, 100),
+            new Led(context, 500, 150),
+            new Led(context, 500, 200),
+            new Led(context, 500, 250)
+            */
+            
+        var width = 250;
+        var height = 650;
+            
+        super(context, gates, x, y, width, height);
+    }
+}
+
 class Game {
     constructor() {
         this.canvas = document.getElementById("canvas");
         this.context = this.canvas.getContext("2d");
         this.selectedTerminal = null;
         
+        this.boards = [
+            new BoardInput(this.context, 20, 20),
+            new BoardGates(this.context, 200, 20),
+        ];
         this.gates = [
-            new Switch(this.context, 10, 50),
-            new Switch(this.context, 10, 100),
-            new Switch(this.context, 10, 150),
-            new Switch(this.context, 10, 200),
-        
-            new NotGate(this.context, 100, 50),
-            new NotGate(this.context, 100, 100),
-            new NotGate(this.context, 100, 150),
-            new NotGate(this.context, 100, 200),
-            new NotGate(this.context, 100, 250),
-            new NotGate(this.context, 100, 300),
-            new NotGate(this.context, 100, 350),
-            new NotGate(this.context, 100, 400),
             
-            new NandGate2(this.context, 300, 50),
-            new NandGate2(this.context, 300, 100),
-            new NandGate2(this.context, 300, 150),
-            new NorGate2(this.context, 300, 200),
-            new NorGate2(this.context, 300, 250),
-            new NorGate2(this.context, 300, 300),
-            new NotGate(this.context, 300, 350),
-            new NotGate(this.context, 300, 400),
-            
-            
-            new Led(this.context, 500, 50),
-            new Led(this.context, 500, 100),
-            new Led(this.context, 500, 150),
-            new Led(this.context, 500, 200),
-            new Led(this.context, 500, 250),
         ];
         this.wires = [];
         
@@ -515,8 +634,8 @@ class Game {
     }
     
     checkCollision(x, y) {
-        for (var index = 0; index < this.gates.length; index++) {
-            var g = this.gates[index];
+        for (var index = 0; index < this.boards.length; index++) {
+            var g = this.boards[index];
             var t = g.checkCollision(x, y);
             if (t) return t;
         }
@@ -527,16 +646,16 @@ class Game {
         var ctx = this.context;
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
-        ctx.fillStyle = "#FFFF33";
+        /*ctx.fillStyle = "#FFFF33";
         ctx.rect(5, 30, 60, 200);
         ctx.rect(85, 20, 310, 410);
         ctx.rect(485, 30, 55, 240);
         ctx.fillRect(5, 30, 60, 200);
         ctx.fillRect(85, 20, 310, 410);
         ctx.fillRect(485, 30, 55, 240);
-        ctx.stroke();
+        ctx.stroke();*/
         
-        this.gates.forEach(t => {
+        this.boards.forEach(t => {
             t.apply();
             t.draw();
         });
@@ -560,7 +679,7 @@ function startGame() {
 
 </script>
 
-<canvas id="canvas" width="800" height="600"></canvas>
+<canvas id="canvas" width="1000" height="800"></canvas>
 
 </body>
 </html>
