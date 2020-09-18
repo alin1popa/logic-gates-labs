@@ -11,8 +11,9 @@ class Board extends Applicable {
     
     apply() {
         this.gates.forEach(t => {
-            t.apply();
+           t.apply();
         });
+        //this.gates[this.gates.length-1].apply();
     }
     
     checkCollision(x, y) {
@@ -27,6 +28,7 @@ class Board extends Applicable {
     draw() {
         var ctx = this.context;
         
+        ctx.beginPath();
         ctx.fillStyle = "#FFFF33";
         //ctx.rect(this.x, this.y, this.w, this.h);
         var B = 5;
@@ -38,6 +40,7 @@ class Board extends Applicable {
         //ctx.fillRect(85, 20, 310, 410);
         //ctx.fillRect(485, 30, 55, 240);
         ctx.stroke();
+        ctx.closePath();
         
         this.gates.forEach(t => {
             t.draw();

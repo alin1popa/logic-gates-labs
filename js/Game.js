@@ -7,8 +7,8 @@ class Game {
         this.boards = [
             new BoardInput(this.context, 20, 20),
             new BoardGates(this.context, 200, 20),
-            new BoardLeds(this.context, 700, 20),
-            
+            new BoardLeds(this.context, 670, 20),
+            new BoardMux(this.context, 670, 360),
         ];
         this.gates = [
             
@@ -70,13 +70,25 @@ class Game {
         var ctx = this.context;
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
        
+        for (var i=0; i<10; i++) {
         this.boards.forEach(t => {
             t.apply();
-            t.draw();
+            // t.draw();
         });
         
         this.wires.forEach(t => {
             t.apply();
+            // t.draw();
+        });
+    }
+
+        this.boards.forEach(t => {
+            // t.apply();
+            t.draw();
+        });
+        
+        this.wires.forEach(t => {
+            // t.apply();
             t.draw();
         });
         
