@@ -20,11 +20,17 @@ class Component extends Gate {
             this.terminals.push(new Terminal(context, OUTPUT));
         }
     }
+
+    drawIntern() {
+
+    }
     
     apply() {
     }
 
     draw() {
+        this.drawIntern();
+        
         var x = this.x;
         var y = this.y;
         var ctx = this.context;
