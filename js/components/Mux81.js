@@ -1,6 +1,7 @@
 class Mux81 extends Component {
     constructor(context, x, y) {
-        super(context, x, y, 90, 170, 8, 4, 1, 0);
+        var labels = ["I0", "I1", "I2", "I3", "I4", "I5", "I6", "I7", "S2", "S1", "S0", "!EN", "Y"];
+        super(context, x, y, 90, 170, 8, 4, 1, 0, labels, ["MUX 8:1"]);
     }
     
     apply() {

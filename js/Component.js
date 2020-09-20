@@ -1,5 +1,5 @@
 class Component extends Gate {
-    constructor(context, x, y, width, height, no_left, no_bottom, no_right, no_top) {
+    constructor(context, x, y, width, height, no_left, no_bottom, no_right, no_top, labels, title) {
         super(context);
         this.x = x;
         this.y = y;
@@ -19,10 +19,12 @@ class Component extends Gate {
         for (var i=0; i<this.no_right; i++) {
             this.terminals.push(new Terminal(context, OUTPUT));
         }
+
+        this.labels = labels || [];
+        this.title = title || [];
     }
 
     drawIntern() {
-
     }
     
     apply() {
@@ -52,6 +54,14 @@ class Component extends Gate {
 
         var margin=15;
 
+        for (var i=0; i<this.title.length; i++) {
+            ctx.font = "10px Arial";
+            ctx.fillStyle = "black";
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "center";
+            ctx.fillText(this.title[i], x+w/2, y+h/2+i*10);
+        }
+
         for (var i=0; i<no_left; i++) {
             ctx.beginPath();
             var end = y+margin+i*(h-2*margin)/((no_left-1)||1)
@@ -62,6 +72,14 @@ class Component extends Gate {
 
             this.terminals[i].x = x-20;
             this.terminals[i].y = end;
+
+            if (this.labels[i]) {
+                ctx.font = "10px Arial";
+                ctx.fillStyle = "black";
+                ctx.textBaseline = "middle";
+                ctx.textAlign = "left";
+                ctx.fillText(this.labels[i], x+2, end);
+            }
         }
 
         for (var i=0; i<no_bottom; i++) {
@@ -74,6 +92,14 @@ class Component extends Gate {
 
             this.terminals[no_left + i].y = b+20;
             this.terminals[no_left + i].x = end;
+
+            if (this.labels[no_left + i]) {
+                ctx.font = "10px Arial";
+                ctx.fillStyle = "black";
+                ctx.textBaseline = "bottom";
+                ctx.textAlign = "center";
+                ctx.fillText(this.labels[no_left + i], end, b);
+            }
         }
 
         for (var i=0; i<no_right; i++) {
@@ -86,6 +112,14 @@ class Component extends Gate {
 
             this.terminals[no_left+no_bottom+i].x = r+20;
             this.terminals[no_left+no_bottom+i].y = end;
+
+            if (this.labels[no_left+no_bottom+i]) {
+                ctx.font = "10px Arial";
+                ctx.fillStyle = "black";
+                ctx.textBaseline = "middle";
+                ctx.textAlign = "right";
+                ctx.fillText(this.labels[no_left+no_bottom+i], r-2, end);
+            }
         }
 
         for (var i=0; i<no_top; i++) {
