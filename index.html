@@ -33,12 +33,15 @@ canvas {
 <script src="js/components/Decoder74HC138.js"></script>
 <script src="js/components/Decoder74HC238.js"></script>
 <script src="js/components/Display16.js"></script>
+<script src="js/components/FlipFlopJK.js"></script>
+<script src="js/components/FlipFlopD.js"></script>
 
 <script src="js/Board.js"></script>
 <script src="js/boards/BoardInput.js"></script>
 <script src="js/boards/BoardGates.js"></script>
 <script src="js/boards/BoardLeds.js"></script>
 <script src="js/boards/BoardMux.js"></script>
+<script src="js/boards/BoardSequential.js"></script>
 
 <script src="js/Game.js"></script>
 <script>
@@ -57,7 +60,7 @@ function startGame() {
         var clk = inp.gates[inp.gates.length-1];
         clk.toggle();
         //console.log('2');
-    }, 200);
+    }, 500);
 }
 
 </script>
