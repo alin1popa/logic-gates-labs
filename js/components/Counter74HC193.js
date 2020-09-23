@@ -31,6 +31,7 @@ class Counter74HC193 extends Component {
             }
         }
 
+        this.value = (this.value+16) % 16;
         this.oldup = up;
         this.olddown = down;
 
