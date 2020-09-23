@@ -1,7 +1,7 @@
 class FlipFlopD extends Component {
     constructor(context, x, y) {
         var labels = ["D", "!EN", "CLK", "Q", "!Q"];
-        super(context, x, y, 60, 60, 1, 2, 2, 0, labels, ["D"]);
+        super(context, x, y, 52, 52, 1, 2, 2, 0, labels, ["D"]);
 
         this.oldclk = 0;
     }

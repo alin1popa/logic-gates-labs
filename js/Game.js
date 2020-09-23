@@ -5,11 +5,11 @@ class Game {
         this.selectedTerminal = null;
         
         this.boards = [
-            new BoardInput(this.context, 20, 20),
-            new BoardGates(this.context, 200, 20),
-            new BoardLeds(this.context, 670, 20),
-            //new BoardMux(this.context, 670, 360),
-            new BoardSequential(this.context, 670, 360),
+            new BoardInput(this.context, 10, 10),
+            new BoardGates(this.context, 180, 10),
+            new BoardLeds(this.context, 1330, 10),
+            new BoardMux(this.context, 625, 10),
+            new BoardSequential(this.context, 625, 515),
         ];
         this.gates = [
             

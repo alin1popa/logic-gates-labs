@@ -6,6 +6,17 @@
 canvas {
     border: 1px solid #d3d3d3;
     background-color: #f1f1f1;
+    float: left;
+}
+
+#settings-panel {
+    background-color: #f1f1f1;
+    margin-left: 10px;
+    width: 200px;
+    height: 500px;
+    display: inline-block;
+    border: 1px solid #d3d3d3;
+    padding: 10px;
 }
 </style>
 </head>
@@ -51,24 +62,52 @@ canvas {
 
 var game;
 
-function startGame() {
-    game = new Game();
-    window.setInterval(function(){
-        //console.log('1');
-        game.update();
-    }, 20);
+var refreshtime = 20;
+var clocktime = 500;
 
-    window.setInterval(function(){
+var clockinterval = undefined;
+var refreshinterval = undefined;
+
+function setGameUpdate() {
+    if (refreshinterval !== undefined) {
+        clearInterval(refreshinterval);
+    }
+    refreshinterval = window.setInterval(function(){
+        game.update();
+    }, refreshtime);
+}
+
+function setClock() {
+    if (clockinterval !== undefined) {
+        clearInterval(clockinterval);
+    }
+    clockinterval = window.setInterval(function(){
         var inp = game.boards[0];
         var clk = inp.gates[inp.gates.length-1];
         clk.toggle();
-        //console.log('2');
-    }, 500);
+    }, clocktime);
+}
+
+function startGame() {
+    game = new Game();
+    setGameUpdate();
+    setClock();
+}
+
+function settings_changeClock() {
+    var value = document.getElementById("clock").value;
+    clocktime = 1000+20-value;
+    setClock();
 }
 
 </script>
 
-<canvas id="canvas" width="1700" height="900"></canvas>
-
+<canvas id="canvas" width="1650" height="920"></canvas>
+<div id="settings-panel">
+    <div class="settings-panel__section">
+        <label for="clock">Clock frequency:</label>
+        <input onchange="settings_changeClock()" value="500" type="range" id="clock" name="clock" min="20" max="1000" step="20">
+    </div>
+</div>
 </body>
 </html>
