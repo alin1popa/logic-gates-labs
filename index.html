@@ -3,6 +3,21 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <style>
+
+* {
+    box-sizing: border-box;
+}
+
+.main-wrapper {
+    width: 100%;
+    overflow-x: hidden;
+    min-width: 1670px;
+}
+
+body {
+    min-width: 1680px;
+}
+
 canvas {
     border: 1px solid #d3d3d3;
     background-color: #f1f1f1;
@@ -177,7 +192,7 @@ function settings_load() {
     if (!confirmation) {
         return;
     } 
-    
+
     input = document.getElementById('file');
     if (!input.files) {
       alert("This browser doesn't seem to support the `files` property of file inputs.");
@@ -201,36 +216,39 @@ function settings_load() {
 }
 
 </script>
-
-<canvas id="canvas" width="1650" height="920"></canvas>
-<div id="settings-panel">
-    <div class="settings-panel__section">
-        <label for="clock">Clock frequency:</label>
-        <input onchange="settings_changeClock()" value="500" type="range" id="clock" name="clock" min="20" max="1000" step="20">
+<div class="main-wrapper">
+    <div id="canvas-wrapper">
+        <canvas id="canvas" width="1650" height="880"></canvas>
     </div>
-    <div class="settings-panel__section">
-        <label>Wire color:</label>
-        <div id="colors">
-            <span onclick="setWireColor('random')" class="selected" id="colrandom" style="background-color: black">R</span>
+    <div id="settings-panel">
+        <div class="settings-panel__section">
+            <label for="clock">Clock frequency:</label>
+            <input onchange="settings_changeClock()" value="500" type="range" id="clock" name="clock" min="20" max="1000" step="20">
         </div>
+        <div class="settings-panel__section">
+            <label>Wire color:</label>
+            <div id="colors">
+                <span onclick="setWireColor('random')" class="selected" id="colrandom" style="background-color: black">R</span>
+            </div>
+        </div>
+        <div class="settings-panel__section">
+            <label for="clock">Play/pause sim:</label>
+            <button id="play" onclick="settings_togglePlayPause()">PAUSE</button>
+        </div>
+        <div class="settings-panel__section">
+            <label for="clock">Save configuration:</label>
+            <button id="save" onclick="settings_save()">SAVE</button>
+        </div>
+        <div class="settings-panel__section">
+            <label for="clock">Load configuration:</label>
+            <input type="file" id="file" accept=".json"/>
+            <button id="load" onclick="settings_load()">LOAD</button>
+        </div>
+        <!--<div class="settings-panel__section">
+            <label for="refreshrate">Refresh rate:</label>
+            <input onchange="settings_changeRefresh()" value="20" type="range" id="refresh" name="refresh" min="5" max="200" step="5">
+        </div>-->
     </div>
-    <div class="settings-panel__section">
-        <label for="clock">Play/pause sim:</label>
-        <button id="play" onclick="settings_togglePlayPause()">PAUSE</button>
-    </div>
-    <div class="settings-panel__section">
-        <label for="clock">Save configuration:</label>
-        <button id="save" onclick="settings_save()">SAVE</button>
-    </div>
-    <div class="settings-panel__section">
-        <label for="clock">Load configuration:</label>
-        <input type="file" id="file" accept=".json"/>
-        <button id="load" onclick="settings_load()">LOAD</button>
-    </div>
-    <!--<div class="settings-panel__section">
-        <label for="refreshrate">Refresh rate:</label>
-        <input onchange="settings_changeRefresh()" value="20" type="range" id="refresh" name="refresh" min="5" max="200" step="5">
-    </div>-->
 </div>
 </body>
 </html>
