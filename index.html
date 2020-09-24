@@ -18,6 +18,30 @@ canvas {
     border: 1px solid #d3d3d3;
     padding: 10px;
 }
+
+#colors span {
+    display: inline-block;
+    float: left;
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    margin-top: 5px;
+}
+
+#colors .selected {
+    border: 1px solid yellow;
+    box-shadow: 0 0 0 2px black;;
+    width: 18px;
+    height: 18px;
+}
+
+#colrandom {
+    background-color: black;
+    color: white;
+    text-align: center;
+}
+
+
 </style>
 </head>
 <body onload="startGame()">
@@ -68,6 +92,8 @@ var clocktime = 500;
 var clockinterval = undefined;
 var refreshinterval = undefined;
 
+var colors = ["blue", "red", "green", "purple", "olive", "darkred", "navy", "teal", "fuchsia", "gray"];
+
 function setGameUpdate() {
     if (refreshinterval !== undefined) {
         clearInterval(refreshinterval);
@@ -88,16 +114,41 @@ function setClock() {
     }, clocktime);
 }
 
+function setWireColor(color) {
+    document.getElementById("colrandom").removeAttribute("class");
+    for (var i=0; i<colors.length; i++) {
+        document.getElementById("col"+colors[i]).removeAttribute("class");
+    }
+    document.getElementById("col"+color).setAttribute("class", "selected");
+    game.setWireColor(color);
+}
+
+function createWireColors() {
+    for (var i=0; i<colors.length; i++) {
+        var color = colors[i];
+        var el = document.getElementById("colors");
+        el.innerHTML += `<span onclick="setWireColor('${color}')" id="col${color}" style="background-color: ${color}"></span>`;
+    }
+}
+
 function startGame() {
     game = new Game();
     setGameUpdate();
     setClock();
+
+    createWireColors();
 }
 
 function settings_changeClock() {
     var value = document.getElementById("clock").value;
     clocktime = 1000+20-value;
     setClock();
+}
+
+function settings_changeRefresh() {
+    var value = document.getElementById("refresh").value;
+    refreshtime = 1000+20-value;
+    setGameUpdate();
 }
 
 </script>
@@ -108,6 +159,16 @@ function settings_changeClock() {
         <label for="clock">Clock frequency:</label>
         <input onchange="settings_changeClock()" value="500" type="range" id="clock" name="clock" min="20" max="1000" step="20">
     </div>
+    <div class="settings-panel__section">
+        <label>Wire color:</label>
+        <div id="colors">
+                <span onclick="setWireColor('random')" class="selected" id="colrandom" style="background-color: black">R</span>
+        </div>
+    </div>
+    <!--<div class="settings-panel__section">
+        <label for="refreshrate">Refresh rate:</label>
+        <input onchange="settings_changeRefresh()" value="20" type="range" id="refresh" name="refresh" min="5" max="200" step="5">
+    </div>-->
 </div>
 </body>
 </html>

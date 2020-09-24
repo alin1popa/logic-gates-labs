@@ -1,18 +1,21 @@
 class Wire extends Applicable {
-    constructor(context, t1, t2) {
+    constructor(context, t1, t2, color) {
         super(context);
         this.t1 = t1;
         this.t2 = t2;
         this.t1.connectedWires.push(this);
         this.t2.connectedWires.push(this);
         
-        var r = Math.floor(Math.random()*10);
-        var colors = [
-            "blue", "red", "green", "purple", "olive",
-            "darkred", "navy", "teal", "fuchsia", "gray"
-        ];
+        if (color == "random") {
+            var r = Math.floor(Math.random()*10);
+            var colors = [
+                "blue", "red", "green", "purple", "olive",
+                "darkred", "navy", "teal", "fuchsia", "gray"
+            ];
+            color = colors[r];
+        }
         
-        this.color = colors[r];
+        this.color = color;
     }
     
     removeSelf() {

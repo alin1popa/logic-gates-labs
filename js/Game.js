@@ -15,8 +15,13 @@ class Game {
             
         ];
         this.wires = [];
+        this.color = "random";
         
         this.canvas.addEventListener('mousedown', this.click.bind(this));
+    }
+
+    setWireColor(color) {
+        this.color = color;
     }
     
     click(event) {
@@ -46,7 +51,7 @@ class Game {
                 }
                 
                 if (!deleted) {
-                    var w = new Wire(this.context, t, this.selectedTerminal);
+                    var w = new Wire(this.context, t, this.selectedTerminal, this.color);
                     this.wires.push(w);
                 }
                 this.selectedTerminal.selected = false;
