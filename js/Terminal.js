@@ -13,6 +13,9 @@ class Terminal extends Drawable {
         this.type = type;
         this.value = false;
         this.connectedWires = [];
+
+        this.id = Terminal.count;
+        Terminal.count++;
     }
     
     propagate(wire) {

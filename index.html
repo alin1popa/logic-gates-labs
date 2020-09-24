@@ -19,6 +19,11 @@ canvas {
     padding: 10px;
 }
 
+.settings-panel__section {
+    clear: left;
+    padding-top: 10px;
+}
+
 #colors span {
     display: inline-block;
     float: left;
@@ -108,9 +113,11 @@ function setClock() {
         clearInterval(clockinterval);
     }
     clockinterval = window.setInterval(function(){
-        var inp = game.boards[0];
-        var clk = inp.gates[inp.gates.length-1];
-        clk.toggle();
+        if (game.playing) {
+            var inp = game.boards[0];
+            var clk = inp.gates[inp.gates.length-1];
+            clk.toggle();
+        }
     }, clocktime);
 }
 
@@ -151,6 +158,48 @@ function settings_changeRefresh() {
     setGameUpdate();
 }
 
+function settings_togglePlayPause() {
+    game.togglePlayPause();
+    var el = document.getElementById("play");
+    if (el.innerHTML == "PAUSE") {
+        el.innerHTML = "PLAY";
+    } else {
+        el.innerHTML = "PAUSE";
+    }
+}
+
+function settings_save() {
+    game.save();
+}
+
+function settings_load() {
+    var confirmation = confirm("This will erase current configuration!");
+    if (!confirmation) {
+        return;
+    } 
+    
+    input = document.getElementById('file');
+    if (!input.files) {
+      alert("This browser doesn't seem to support the `files` property of file inputs.");
+    }
+    else if (!input.files[0]) {
+      alert("Please select a file before clicking 'Load'");
+    }
+    else {
+      file = input.files[0];
+      fr = new FileReader();
+      fr.onload = receivedText;
+      fr.readAsText(file);
+    }
+
+    function receivedText(e) {
+      let lines = e.target.result;
+      var config = JSON.parse(lines); 
+
+      game.load(config);
+    }
+}
+
 </script>
 
 <canvas id="canvas" width="1650" height="920"></canvas>
@@ -162,8 +211,21 @@ function settings_changeRefresh() {
     <div class="settings-panel__section">
         <label>Wire color:</label>
         <div id="colors">
-                <span onclick="setWireColor('random')" class="selected" id="colrandom" style="background-color: black">R</span>
+            <span onclick="setWireColor('random')" class="selected" id="colrandom" style="background-color: black">R</span>
         </div>
+    </div>
+    <div class="settings-panel__section">
+        <label for="clock">Play/pause sim:</label>
+        <button id="play" onclick="settings_togglePlayPause()">PAUSE</button>
+    </div>
+    <div class="settings-panel__section">
+        <label for="clock">Save configuration:</label>
+        <button id="save" onclick="settings_save()">SAVE</button>
+    </div>
+    <div class="settings-panel__section">
+        <label for="clock">Load configuration:</label>
+        <input type="file" id="file" accept=".json"/>
+        <button id="load" onclick="settings_load()">LOAD</button>
     </div>
     <!--<div class="settings-panel__section">
         <label for="refreshrate">Refresh rate:</label>
