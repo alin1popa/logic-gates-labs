@@ -19,6 +19,8 @@ class Game {
         this.wires = [];
         this.color = "random";
 
+        this.drawDirty = true;
+
         this.playing = true;
         
         this.canvas.addEventListener('mousedown', this.click.bind(this));
@@ -52,6 +54,8 @@ class Game {
         }
 
         this.wires = [];
+
+        this.drawDirty = true;
     }
 
     load(config) {
@@ -65,6 +69,8 @@ class Game {
             var w = new Wire(this.context, t1, t2, wc.col);
             this.wires.push(w);
         }
+
+        this.drawDirty = true;
     }
 
     buildListOfTerminals() {
@@ -107,6 +113,7 @@ class Game {
                         we.removeSelf();
                         this.wires.splice(index, 1);
                         deleted = true;
+                        this.drawDirty = true;
                         break;
                     }
                 }
@@ -135,10 +142,11 @@ class Game {
     
     update() {
         var ctx = this.context;
+        
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
        
         if (this.playing) {
-            for (var i=0; i<10; i++) {
+            for (var i=0; i<3; i++) {
                 this.boards.forEach(t => {
                     t.apply();
                 });
@@ -159,5 +167,6 @@ class Game {
             t.draw();
         });
         
+        this.drawDirty = false;
     }
 }
