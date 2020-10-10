@@ -37,9 +37,20 @@ class Game {
             };
             allinfo = allinfo.concat(info);
         }
+        
+        var inputboard = this.boards[0];
+        var allswitches = [];
+        for (var i=0; i<inputboard.gates.length; i++) {
+            allswitches = allswitches.concat(inputboard.gates[i].value);
+        }
+        
+        var download = {
+            "allinfo": allinfo,
+            "allswitches": allswitches,
+        }
 
         const a = document.createElement("a");
-        a.href = URL.createObjectURL(new Blob([JSON.stringify(allinfo, null, 2)], {
+        a.href = URL.createObjectURL(new Blob([JSON.stringify(download, null, 2)], {
             type: "text/plain"
         }));
         a.setAttribute("download", "save.json");
@@ -61,13 +72,29 @@ class Game {
     load(config) {
         this.resetAllWires();
 
-        for (var i=0; i<config.length; i++) {
-            var wc = config[i];
+        var configwires = undefined;
+        var configswitches = undefined;
+        
+        if (config["allinfo"]) {
+            configwires = config["allinfo"];
+            configswitches = config["allswitches"];
+        } else {
+            configwires = config;
+        }
+        
+        for (var i=0; i<configwires.length; i++) {
+            var wc = configwires[i];
             var t1 = this.allterminals.find(e => e.id == wc.t1);
             var t2 = this.allterminals.find(e => e.id == wc.t2);
 
             var w = new Wire(this.context, t1, t2, wc.col);
             this.wires.push(w);
+        }
+        
+        if (configswitches) {
+            for (var i=0; i<configswitches.length; i++) {
+                this.boards[0].gates[i].value = configswitches[i];
+            }
         }
 
         this.drawDirty = true;

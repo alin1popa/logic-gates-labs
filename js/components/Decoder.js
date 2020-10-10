@@ -10,9 +10,11 @@ class Decoder extends Component {
         var sel = 4*this.terminals[2].value + 2*this.terminals[1].value + 1*this.terminals[0].value;
 
         for (var i=4; i<this.terminals.length; i++) {
-            this.terminals[i].value = (!en) && this.default;
+            this.terminals[i].value = this.default;
         }
 
-        this.terminals[4+sel].value = (!en) && (!this.default);
+        if (!en) {
+            this.terminals[4+sel].value = !this.default;
+        }
     }
 }
